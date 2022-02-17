@@ -1,0 +1,109 @@
+#chat ion-col {
+    padding: 0 !important;
+}
+
+#chat ion-row {
+    margin-top: 26px;
+}
+
+#chat ion-avatar {
+    margin-top: 2px;
+    margin-bottom: 2px;
+    margin-right: 4px;
+}
+
+#chat ion-avatar img {
+    min-height: 40px !important;
+    min-width: 40px !important;
+}
+
+#chat ion-list {
+    padding: 0 !important;
+}
+
+#chat ion-content::part(background) {
+    background: rgb(41, 41, 41);
+}
+
+#chat ion-grid {
+    height: 100%;
+    background: rgb(41, 41, 41);
+}
+
+#chat ion-item::part(native) {
+    background: rgb(41, 41, 41);
+}
+
+#chat .item-inner {
+   border: 0;
+}
+
+#chat ion-list {
+    height: 100%;
+}
+
+#chat ion-list-header {
+    padding-left: 0;
+}
+
+#chat ion-footer {
+    position: absolute;
+    bottom: 0;
+}
+
+#chat .bubble {
+    border: 1px solid;
+    border-radius: 5px;
+    min-height: 40px;
+}
+
+#chat .bubble.primary {
+    background-color: #3880ff;
+    border-color: #3880ff;
+    margin-left: 12px;
+}
+
+#chat .bubble.success {
+    background-color: #2dd36f;
+    border-color: #2dd36f;
+}
+
+#chat .slotted-fix {
+    margin-inline-start: 12px !important;
+}
+
+#chat .mr-fix {
+    margin-right: 0;
+}
+
+#chat .bubble p {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+#chat .talk {
+    display: flex;    
+}
+
+#chat .talk-content {
+    flex: 4;
+    background-color: rgb(41, 41, 41);
+    margin: 10px 12px;
+}
+
+#chat .talk-btn{
+    min-width: 50px;
+    flex: 1;
+    align-self: center;
+    padding-right: 12px;
+}
+
+#chat .talk-btn ion-button{
+    width: 100%;
+}
+
+#chat #add{
+    padding: 0;
+}

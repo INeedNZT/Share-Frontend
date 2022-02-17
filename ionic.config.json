@@ -1,0 +1,7 @@
+{
+  "name": "date-app",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react"
+}
