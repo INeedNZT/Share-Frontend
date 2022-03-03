@@ -3,9 +3,10 @@ import ReactDOM from 'react-dom';
 import App from './App';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 import reportWebVitals from './reportWebVitals';
+import { Redirect, Route, RouteComponentProps } from 'react-router-dom';
 
 ReactDOM.render(
-  <React.StrictMode>
+  <React.StrictMode >
     <App />
   </React.StrictMode>,
   document.getElementById('root')

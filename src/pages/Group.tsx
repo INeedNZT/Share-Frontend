@@ -17,45 +17,27 @@ import {
     IonCol,
     useIonViewWillEnter
 } from '@ionic/react';
-import { useState } from 'react';
+import { useState, useContext } from 'react';
+import { useHistory, RouteComponentProps } from 'react-router-dom';
 import './Group.css';
 import Chat from '../components/Chat';
+import { UserContext } from '../App';
+import { UserDetailPageProps } from '../type';
 
-const GroupPage: React.FC = () => {
-    const [data, setData] = useState<string[]>([]);
 
 
-    const pushData = () => {
-        const max = data.length + 20;
-        const min = max - 20;
-        const newData = [];
-        for (let i = min; i < max; i++) {
-            newData.push('Item' + i);
-        }
-
-        setData([
-            ...data,
-            ...newData
-        ]);
-
-    }
-    const loadData = (ev: any) => {
-        setTimeout(() => {
-            pushData();
-            console.log('Loaded data');
-            ev.target.complete();
-        },
-            500);
-    }
+const GroupPage: React.FC<UserDetailPageProps> = ({ match }) => {
+    
+    console.log("start code of Group page")
 
     useIonViewWillEnter(() => {
-        pushData();
+        console.log("enter Group View!!!!")
     });
 
     return (
-        <IonPage>
-            <Chat></Chat>
-        </IonPage>
+        <div>
+            <Chat groupId={match.params.id}></Chat>
+        </div>
     );
 };
 

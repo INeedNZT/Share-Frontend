@@ -8,51 +8,40 @@ import {
     IonPage,
     IonTitle,
     IonToolbar,
-    IonListHeader,
-    IonRadio,
-    IonRadioGroup,
     IonRouterLink,
     IonInput,
     IonGrid,
     IonRow,
     IonCol,
-    useIonViewWillEnter
+    useIonViewWillEnter,
 } from '@ionic/react';
-import { useState } from 'react';
-import './Home.css';
+import { useContext, useState } from 'react';
+import { useHistory } from 'react-router-dom';
+import { UserContext } from '../App';
+import { User } from '../type';
+
+
 
 const LoginPage: React.FC = () => {
-    const [data, setData] = useState<string[]>([]);
-    const [text, setText] = useState<string>();
-    const [password, setPassword] = useState<string>();
-    const [number, setNumber] = useState<number>();
-    const [selected, setSelected] = useState<string>('');
+    
+    const [userName, setUserName] = useState<string>("");
+    const [password, setPassword] = useState<string>("");
+    const c = useContext(UserContext);
+    const history = useHistory();
 
-    const pushData = () => {
-        const max = data.length + 20;
-        const min = max - 20;
-        const newData = [];
-        for (let i = min; i < max; i++) {
-            newData.push('Item' + i);
+   
+    const loginEvent = (e: any) =>{
+        if(c){
+            c.u.userId = Math.floor(Math.random() * 5).toString();
+            c.u.userName = userName;
+            c.u.password = password;
+            c.setU(c.u);
         }
-
-        setData([
-            ...data,
-            ...newData
-        ]);
-
+        history.push("/grouplist");
     }
-    const loadData = (ev: any) => {
-        setTimeout(() => {
-            pushData();
-            console.log('Loaded data');
-            ev.target.complete();
-        },
-            500);
-    }
+
 
     useIonViewWillEnter(() => {
-        pushData();
     });
 
     return (
@@ -60,7 +49,7 @@ const LoginPage: React.FC = () => {
 
             <IonHeader>
                 <IonToolbar>
-                    <IonTitle>Become One of Us</IonTitle>
+                    <IonTitle>Share</IonTitle>
                 </IonToolbar>
             </IonHeader>
 
@@ -78,13 +67,13 @@ const LoginPage: React.FC = () => {
 
                     <IonItem>
                         <IonLabel position="floating">User Name</IonLabel>
-                        <IonInput value={text} placeholder="your login id" onIonChange={e => setText(e.detail.value!)}></IonInput>
+                        <IonInput value={userName} placeholder="your login id"></IonInput>
                     </IonItem>
                     <br />
 
                     <IonItem>
                         <IonLabel position="floating">Password</IonLabel>
-                        <IonInput type="password" value={password} placeholder="password for login" onIonChange={e => setPassword(e.detail.value!)}></IonInput>
+                        <IonInput type="password" value={password} placeholder="password for login"></IonInput>
                     </IonItem>
                     <br />
                 </IonList>
@@ -92,7 +81,7 @@ const LoginPage: React.FC = () => {
 
                 <IonGrid>
                     <IonRow >
-                        <IonCol className="ion-text-center"><IonButton color="primary">Login</IonButton></IonCol>
+                        <IonCol className="ion-text-center"><IonButton color="primary" onClick={loginEvent}>Login</IonButton></IonCol>
                         <IonCol className="ion-text-center"><IonButton color="danger">Cancle</IonButton></IonCol>
                     </IonRow>
                     <br />

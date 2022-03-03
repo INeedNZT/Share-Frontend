@@ -27,38 +27,15 @@ const RegisterPage: React.FC = () => {
     const [number, setNumber] = useState<number>();
     const [selected, setSelected] = useState<string>('');
 
-    const pushData = () => {
-        const max = data.length + 20;
-        const min = max - 20;
-        const newData = [];
-        for (let i = min; i < max; i++) {
-            newData.push('Item' + i);
-        }
-
-        setData([
-            ...data,
-            ...newData
-        ]);
-
-    }
-    const loadData = (ev: any) => {
-        setTimeout(() => {
-            pushData();
-            console.log('Loaded data');
-            ev.target.complete();
-        },
-            500);
-    }
-
     useIonViewWillEnter(() => {
-        pushData();
+        
     });
 
     return (
         <IonPage>
             <IonHeader>
                 <IonToolbar>
-                    <IonTitle>Become One of Us</IonTitle>
+                    <IonTitle>Share</IonTitle>
                 </IonToolbar>
             </IonHeader>
 
@@ -82,7 +59,7 @@ const RegisterPage: React.FC = () => {
 
                     <IonItem>
                         <IonLabel position="floating">NickName</IonLabel>
-                        <IonInput value={text} placeholder="name show in the chat" onIonChange={e => setText(e.detail.value!)}></IonInput>
+                        <IonInput value={text} placeholder="name display in the chat" onIonChange={e => setText(e.detail.value!)}></IonInput>
                     </IonItem>
                     <br />
 
