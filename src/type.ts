@@ -4,7 +4,8 @@ import { createContext, useEffect, useState } from 'react';
 export type User = {
     userId: string,
     userName: string,
-    password: string
+    password: string,
+    sex:string
 }
 
 export interface UserDetailPageProps

@@ -20,13 +20,13 @@ import {
     IonFabButton,
     IonBadge,
     useIonViewWillLeave,
+    useIonViewDidEnter,
 } from '@ionic/react';
-import { Storage } from '@ionic/storage';
 import { useState, useContext, useRef, useEffect } from 'react';
 import './Chat.css'
-import { paperPlaneOutline, add, storefront } from 'ionicons/icons';
+import { image } from 'ionicons/icons';
 import Tbox from './Tbox';
-import { SocketContext, StorageContext, UserContext, TranslateContext } from '../App';
+import { SocketContext, UserContext, TranslateContext } from '../App';
 import { useHistory } from 'react-router-dom';
 import { forceUpdate } from 'ionicons/dist/types/stencil-public-runtime';
 
@@ -35,83 +35,73 @@ export interface Group {
 }
 
 
-
 const Chat: React.FC<Group> = ({ groupId }) => {
 
-    console.log("start code of Chat Page")
-
-    const storage = useContext(StorageContext);
     const socket = useContext(SocketContext);
     const t_socket = useContext(TranslateContext);
     const c = useContext(UserContext);
     const history = useHistory();
-    const contentEle = useRef<HTMLIonContentElement>(null);
+
+    console.log("start code of Chat Page")
+    console.log("get user context, ", c);
 
     type Msg = {
         content: string
         sender: string // user id,
         chinese: string
-        isShow: boolean
+        isShow: boolean,
+        isTrans: boolean,
+        sex: string,
+        userName: string
     }
 
     const [text, setText] = useState<string>("");
     const [mlist, setMlist] = useState<Array<Msg>>([]);
 
-    // const sotreList = async (list: any) => {
-    //     await storage.set('123_12', list);
-    // }
-
-    // useEffect(() => {
-    //     contentEle.current?.scrollToBottom();
-    //     sotreList(mlist);
-    //     console.log("already store the mlist")
-    //     console.log(mlist)
-    // }, [mlist])
 
     const translate = (m: Msg, i: number) => {
-        console.log("translate function: " + m.content)
-        t_socket.emit("getChinese", { text: m.content, index: i.toString() });
-        mlist[i].isShow = true;
-        t_socket.on("rtranslation", (data) => {
-            console.log("rtranslation!!!!!");
-            mlist[data.index].chinese = data.text;
-            t_socket.off("rtranslation");
-
+        if (!mlist[i].isTrans) {
+            mlist[i].isTrans = !(mlist[i].isTrans);
+            mlist[i].isShow = false;
             setMlist(mlist.concat([]));
+        } else {
+            console.log("translate function: " + m.content);
+            mlist[i].isShow = true;
+            mlist[i].chinese = 'Waiting for translation...';
+            setMlist(mlist.concat([]));
+            t_socket.emit("getChinese", { text: m.content, index: i.toString() }, (data: any) => {
+                mlist[data.index].chinese = data.text;
+                mlist[data.index].isTrans = false;
+                setMlist(mlist.concat([]));
+            });
+        }
+
+    }
+
+    const regMsg = () => {
+        socket.removeAllListeners("rmessage");
+        socket.on("rmessage", (d) => {
+            console.log("my rmessage");
+            console.log(d);
+            regMsg();
+            setMlist(mlist.concat({ content: d.msg, sender: d.userId, chinese: '', isShow: false, isTrans: true, sex: d.sex, userName: d.userName }));
         })
     }
 
+    regMsg();
 
-    // const getList = async () => {
-    //     const list = await storage.get('123_12');
-    //     console.log("get the list from storage")
-    //     console.log(list)
-    //     if (!list) { 
-    //         setMlist(new Array<Msg>());
-    //     } else {
-    //         setMlist(list);
-    //     }
-    // }
-
-    const clearList = async () => {
-        await storage.clear();
-    }
-
-    socket.on("rmessage", (d) => {
-        console.log("my rmessage");
-        console.log(d);
-        setMlist(mlist.concat({ content: d.msg, sender: d.userId, chinese: '', isShow: false }));
-        contentEle.current?.scrollToBottom();
-    })
 
     useIonViewWillEnter(() => {
         console.log("enter Chat View!!!!")
-        // console.log(user.userId);
-        // if (!user.userId) {
-        //     history.push("/home");
-        // }
+        const header = document.getElementById("chat-header");
+        const footer = document.getElementById("chat-footer");
+        const grid = document.getElementById("chat-grid");
+        const headerHeight = header?.clientHeight;
+        const footerHeight = footer?.clientHeight;
+        grid!.style.height = window.innerHeight + "px";
+        grid!.style.paddingTop = headerHeight + "px";
+        grid!.style.paddingBottom = footerHeight + "px";
         if (c) {
-            c.u.userId = Math.floor(Math.random() * 5).toString();
             socket.emit("joinRoom", { userId: c.u.userId, groupId: groupId })
         }
     })
@@ -119,35 +109,39 @@ const Chat: React.FC<Group> = ({ groupId }) => {
     useIonViewWillLeave(() => {
         if (c) {
             socket.emit("quitRoom", { userId: c.u.userId, groupId: groupId })
+            socket.removeAllListeners("rmessage");
         }
     })
 
-    const addToList = (data: { msg: string, userId: string }) => {
-        const m: Msg = { content: data.msg, sender: data.userId, chinese: '', isShow: false };
-        socket.emit("smessage", { content: data.msg, userId: data.userId, groupId: groupId })
+    useEffect(() => {
+        const grid = document.getElementById("chat-grid");
+        grid?.scrollTo({ top: grid.scrollHeight });
+    }, [mlist])
+
+    const addToList = (data: { msg: string, userId: string, sex: string, userName: string }) => {
+        const m: Msg = { content: data.msg, sender: data.userId, chinese: '', isShow: false, isTrans: true, sex: data.sex, userName: data.userName };
+        socket.emit("smessage", { content: data.msg, userId: data.userId, groupId: groupId, sex: data.sex, userName: data.userName })
         setMlist(mlist.concat(m)); // trigger state change
-        contentEle.current?.scrollToBottom();
     }
 
     const postMessage = () => {
         if (c) {
-            console.log("get userId! " +  c.u.userId );
+            console.log("get userId! " + c.u.userId);
             console.log(c);
             const t = text;
             setText('');
-            addToList({ msg: t, userId: c.u.userId });
+            addToList({ msg: t, userId: c.u.userId, sex: c.u.sex, userName: c.u.userName });
         }
     }
 
     const addPhoto = () => {
-        clearList();
     }
 
 
     return (
         <IonPage>
             <div id="chat">
-                <IonListHeader>
+                <IonListHeader id='chat-header'>
                     <IonToolbar>
                         <IonButtons slot="start">
                             <IonBackButton defaultHref="/" />
@@ -156,21 +150,22 @@ const Chat: React.FC<Group> = ({ groupId }) => {
                     </IonToolbar>
                 </IonListHeader>
 
-                <IonContent fullscreen={true} ref={contentEle}>
-                    <IonGrid>
+                <div id="chat-content" slot='fixed'>
+                    <IonGrid fixed={true} id="chat-grid">
                         {mlist && mlist.map((m, index) => {
                             return c?.u.userId != m.sender ?
                                 (<IonRow key={index}>
                                     <IonCol>
                                         <IonItem className='remove_inner_bottom'>
                                             <IonAvatar slot='start'>
-                                                <img src="/assets/male1.png" />
+                                                <img src={m.sex == 'male' ? '/assets/male1.png' : '/assets/female1.png'} />
+                                                <small className='left22'>{m.userName}</small>
                                             </IonAvatar>
                                             <div slot="start" className='bubble primary'>
                                                 <p>
                                                     {m.content}
                                                 </p>
-                                                <IonBadge color="secondary" slot='fixed' id="badge" onClick={() => translate(m, index)}>Translate</IonBadge>
+                                                <IonBadge color="secondary" slot='fixed' onClick={() => translate(m, index)} >{m.isTrans ? "Translate" : "Hide"}</IonBadge>
                                             </div>
                                         </IonItem>
                                         <Tbox val={m.chinese} visible={m.isShow}></Tbox>
@@ -185,10 +180,11 @@ const Chat: React.FC<Group> = ({ groupId }) => {
                                                 <p>
                                                     {m.content}
                                                 </p>
-                                                <IonBadge color="secondary" slot='fixed' id="badge" onClick={() => translate(m, index)}>Translate</IonBadge>
+                                                <IonBadge color="secondary" slot='fixed' onClick={() => translate(m, index)}>{m.isTrans ? "Translate" : "Hide"}</IonBadge>
                                             </div>
                                             <IonAvatar slot='end' className="mr-fix">
-                                                <img src="/assets/male1.png" />
+                                                <img src={c?.u.sex == 'male' ? '/assets/male1.png' : '/assets/female1.png'} />
+                                                <small className='right22'>{m.userName}</small>
                                             </IonAvatar>
                                         </IonItem>
                                         <Tbox val={m.chinese} visible={m.isShow}></Tbox>
@@ -196,32 +192,31 @@ const Chat: React.FC<Group> = ({ groupId }) => {
                                 </IonRow>)
                         })}
                     </IonGrid>
-                </IonContent>
-
-                <IonFooter>
+                </div>
+                <IonFooter id='chat-footer'>
                     <IonToolbar>
                         <div className='talk'>
                             <div className='talk-content'>
-                                <IonInput value={text} onIonChange={e => setText(e.detail.value!)}></IonInput>
+                                <IonInput value={text} placeholder="type something..." onIonChange={e => setText(e.detail.value!)}></IonInput>
                             </div>
                             <div className='talk-btn'>
                                 <IonButton color="primary" onClick={postMessage}>
-                                    &nbsp;
-                                    <IonIcon icon={paperPlaneOutline} />
-                                    &nbsp;
+                                    Send
                                 </IonButton>
 
                             </div>
                             <div className='talk-btn' id="add">
                                 <IonFab vertical="center" horizontal="end" slot="fixed" onClick={addPhoto}>
                                     <IonFabButton size='small'>
-                                        <IonIcon icon={add}></IonIcon>
+                                        <IonIcon icon={image}></IonIcon>
                                     </IonFabButton>
                                 </IonFab>
                             </div>
                         </div>
                     </IonToolbar>
                 </IonFooter>
+
+
             </div>
         </IonPage>
     );

@@ -36,33 +36,24 @@ import { C, User } from './type'
 import GroupListPage from './pages/GroupList';
 
 
-
-
-
-let store: any = undefined;
-async function initStorage() {
-  store = new Storage();
-  await store.create();
-}
-
-initStorage();
-
-
-let user: User = { userId: '', userName: '', password: '' };
+let user: User = { userId: '', userName: '', password: '', sex: '' };
 
 const socket = io("ws://127.0.0.1:5000");
 const t_socket = io("ws://127.0.0.1:7000");
 
-export const StorageContext = createContext(store);
 export const SocketContext = createContext(socket);
 export const TranslateContext = createContext(t_socket);
-export const UserContext= createContext<C>(null);
+export const UserContext = createContext<C>(null);
 
 const App: React.FC = () => {
   const [u, setU] = useState(user);
 
+  useEffect(() => {
+    console.log("user info has changed, ", u);
+  }, [u])
+
   return (<IonApp>
-    <UserContext.Provider value={{u, setU}}>
+    <UserContext.Provider value={{ u, setU }}>
       <IonReactRouter>
         <IonRouterOutlet id="main">
           <Route exact path="/" component={GroupListPage} />

@@ -20,47 +20,56 @@ import {
     IonRouterOutlet
 } from '@ionic/react';
 import { useState, useContext } from 'react';
-import { useHistory, Route, RouteComponentProps } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import { UserContext } from '../App';
-import GroupPage from './Group';
 import './GroupList.css';
 
 
 const GroupListPage: React.FC = () => {
     const c = useContext(UserContext);
+    console.log("start code of GroupList page");
+    console.log("get user context, ", c);
     const history = useHistory();
-    console.log(c)
 
     useIonViewWillEnter(() => {
         if (!(c?.u.userId)) {
-            console.log(1111111);
+            console.log("Grouplist page can't find user info, back to login page.");
             history.push("/login");
         }
     });
 
     return (
         <IonPage id="grouplist">
+            <IonHeader>
+                <IonToolbar>
+                    <IonTitle><h2>Share</h2></IonTitle>
+                </IonToolbar>
+            </IonHeader>
             <IonContent fullscreen>
-                <IonListHeader>Recent Chat Channels</IonListHeader>
-                <IonList class='pad'>
-                    <IonItem>
-                        <IonLabel><h2>
-                            <IonRouterLink href='/group/1'>Group 1 </IonRouterLink>
-                        </h2>
-                        </IonLabel>
-                    </IonItem>
-                    <IonItem>
-                        <IonLabel>
-                            <h2>
-                                <IonRouterLink href='/group/2'>Group 2</IonRouterLink>
-                            </h2>
-                        </IonLabel>
-                    </IonItem>
-                </IonList>
+                <div className='pad'>
+                    <IonListHeader>Recent Chat Channels</IonListHeader>
+                    <IonList>
+                        <IonItem>
+                            <IonLabel>
+                                <h2>
+                                    <Link to='/group/1'>Group 1 </Link>
+                                </h2>
+                            </IonLabel>
+                        </IonItem>
+                        <IonItem>
+                            <IonLabel>
+                                <h2>
+                                    <Link to='/group/2'>Group 2</Link>
+                                </h2>
+                            </IonLabel>
+                        </IonItem>
+                    </IonList>
+                </div>
                 <IonRow>
                     <IonCol className="ion-text-center">
+                        {/* use IonRouterLink to clear the userContext */}
                         <IonRouterLink color="white" href='/login'>
-                            Log out
+                            <b><h4>Log out</h4></b>
                         </IonRouterLink>
                     </IonCol>
                 </IonRow>

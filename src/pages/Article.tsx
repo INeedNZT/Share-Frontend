@@ -1,31 +1,27 @@
 import {
     useIonViewWillEnter
 } from '@ionic/react';
-import './Group.css';
-import Chat from '../components/Chat';
+import './Article.css';
 import { UserContext } from '../App';
 import { UserDetailPageProps } from '../type';
 import { useContext } from 'react';
 
 
 
-const GroupPage: React.FC<UserDetailPageProps> = ({ match }) => {
+const ArticlePage: React.FC<UserDetailPageProps> = ({ match }) => {
 
     const c = useContext(UserContext);
-    console.log("start code of Group page")
+    console.log("start code of Article page")
     console.log("get user context, ", c);
 
     useIonViewWillEnter(() => {
-        console.log("enter Group View!!!!")
+        console.log("enter Article View!!!!")
     });
 
     return (
         <div>
-            <Chat groupId={match.params.id}></Chat>
         </div>
-
-
     );
 };
 
-export default GroupPage;
+export default ArticlePage;

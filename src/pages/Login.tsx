@@ -14,30 +14,53 @@ import {
     IonRow,
     IonCol,
     useIonViewWillEnter,
+    useIonAlert
 } from '@ionic/react';
 import { useContext, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { UserContext } from '../App';
-import { User } from '../type';
+import { UserContext, SocketContext } from '../App';
+import { User, C } from '../type';
+import { App } from '@capacitor/app';
 
 
 
 const LoginPage: React.FC = () => {
-    
+
+    const socket = useContext(SocketContext);
     const [userName, setUserName] = useState<string>("");
     const [password, setPassword] = useState<string>("");
-    const c = useContext(UserContext);
+    const c = useContext<C>(UserContext);
     const history = useHistory();
+    const [present] = useIonAlert();
 
-   
-    const loginEvent = (e: any) =>{
-        if(c){
-            c.u.userId = Math.floor(Math.random() * 5).toString();
-            c.u.userName = userName;
-            c.u.password = password;
-            c.setU(c.u);
-        }
-        history.push("/grouplist");
+
+    const loginEvent = (e: any) => {
+        socket.emit("login", { userName: userName, password: password }, (response: any) => {
+            console.log("Successfully log in,", c);
+            if (response.result == "success") {
+                c?.setU({ userName: userName, password: password, userId: response.userId, sex: response.sex });
+                history.push("/grouplist");
+            } else {
+                present({
+                    header: 'User Not Found',
+                    message: 'user name or password are not matched!',
+                    buttons: [
+                      'OK'
+                    ]
+                  })
+            }
+        })
+    }
+
+    const QuitEvent = (e:any) =>{
+        present({
+            header: 'Quit Share?',
+            message: 'Do you want to quit this app?',
+            buttons: [
+                { text: 'Yes', handler: () => { App.exitApp(); } },
+                "No"
+            ]
+        })
     }
 
 
@@ -49,31 +72,22 @@ const LoginPage: React.FC = () => {
 
             <IonHeader>
                 <IonToolbar>
-                    <IonTitle>Share</IonTitle>
+                    <IonTitle><h2>Sign In</h2></IonTitle>
                 </IonToolbar>
             </IonHeader>
 
 
             <IonContent>
                 <IonList>
-                    {/* {data.map((item, index) => {
-              return (
-                <IonItem key={index}>
-                  <IonLabel>{item}</IonLabel>
-                </IonItem>
-              )
-            })} */}
-                    {/* <IonLabel>Default Label</IonLabel> */}
-
                     <IonItem>
                         <IonLabel position="floating">User Name</IonLabel>
-                        <IonInput value={userName} placeholder="your login id"></IonInput>
+                        <IonInput value={userName} onIonChange={e => setUserName(e.detail.value!)} placeholder="your user name for sign in"></IonInput>
                     </IonItem>
                     <br />
 
                     <IonItem>
                         <IonLabel position="floating">Password</IonLabel>
-                        <IonInput type="password" value={password} placeholder="password for login"></IonInput>
+                        <IonInput type="password" value={password} onIonChange={e => setPassword(e.detail.value!)} placeholder="password for sign in"></IonInput>
                     </IonItem>
                     <br />
                 </IonList>
@@ -81,8 +95,8 @@ const LoginPage: React.FC = () => {
 
                 <IonGrid>
                     <IonRow >
-                        <IonCol className="ion-text-center"><IonButton color="primary" onClick={loginEvent}>Login</IonButton></IonCol>
-                        <IonCol className="ion-text-center"><IonButton color="danger">Cancle</IonButton></IonCol>
+                        <IonCol className="ion-text-center"><IonButton color="primary" onClick={(e) => loginEvent(e)}>Login</IonButton></IonCol>
+                        <IonCol className="ion-text-center"><IonButton color="danger" onClick={QuitEvent}>Quit</IonButton></IonCol>
                     </IonRow>
                     <br />
                     <IonRow >
@@ -93,9 +107,7 @@ const LoginPage: React.FC = () => {
                         </IonCol>
                     </IonRow>
                 </IonGrid>
-
             </IonContent>
-
 
         </IonPage>
     );
