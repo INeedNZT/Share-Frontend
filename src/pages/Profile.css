@@ -1,0 +1,8 @@
+#profile .center {
+    display: flex;
+    justify-content: center;
+}
+
+#profile .item-inner{
+    border-style: unset !important;
+    }

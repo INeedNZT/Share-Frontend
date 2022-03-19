@@ -3,7 +3,6 @@ import {
     IonButton,
     IonIcon,
     IonBackButton,
-    IonContent,
     IonItem,
     IonTitle,
     IonToolbar,
@@ -20,7 +19,8 @@ import {
     IonFabButton,
     IonBadge,
     useIonViewWillLeave,
-    useIonViewDidEnter,
+    IonThumbnail,
+    IonImg,
 } from '@ionic/react';
 import { useState, useContext, useRef, useEffect } from 'react';
 import './Chat.css'
@@ -28,7 +28,8 @@ import { image } from 'ionicons/icons';
 import Tbox from './Tbox';
 import { SocketContext, UserContext, TranslateContext } from '../App';
 import { useHistory } from 'react-router-dom';
-import { forceUpdate } from 'ionicons/dist/types/stencil-public-runtime';
+import { Camera, CameraResultType } from '@capacitor/camera';
+
 
 export interface Group {
     groupId: string
@@ -46,13 +47,15 @@ const Chat: React.FC<Group> = ({ groupId }) => {
     console.log("get user context, ", c);
 
     type Msg = {
-        content: string
+        content?: string
         sender: string // user id,
-        chinese: string
-        isShow: boolean,
-        isTrans: boolean,
+        chinese?: string
+        isShow?: boolean,
+        isTrans?: boolean,
         sex: string,
-        userName: string
+        userName: string,
+        isPhoto?: boolean,
+        imgData?: string
     }
 
     const [text, setText] = useState<string>("");
@@ -84,7 +87,12 @@ const Chat: React.FC<Group> = ({ groupId }) => {
             console.log("my rmessage");
             console.log(d);
             regMsg();
-            setMlist(mlist.concat({ content: d.msg, sender: d.userId, chinese: '', isShow: false, isTrans: true, sex: d.sex, userName: d.userName }));
+            const isPhoto = d.imgData ? true : false;
+            setMlist(mlist.concat({
+                content: d.msg, sender: d.userId, chinese: '', isShow: false,
+                isTrans: true, sex: d.sex, userName: d.userName, isPhoto: isPhoto,
+                imgData: d.imgData
+            }));
         })
     }
 
@@ -118,9 +126,16 @@ const Chat: React.FC<Group> = ({ groupId }) => {
         grid?.scrollTo({ top: grid.scrollHeight });
     }, [mlist])
 
-    const addToList = (data: { msg: string, userId: string, sex: string, userName: string }) => {
-        const m: Msg = { content: data.msg, sender: data.userId, chinese: '', isShow: false, isTrans: true, sex: data.sex, userName: data.userName };
-        socket.emit("smessage", { content: data.msg, userId: data.userId, groupId: groupId, sex: data.sex, userName: data.userName })
+    const addToList = (data: { msg: string, userId: string, 
+                                sex: string, userName: string }) => {
+        const m: Msg = {
+            content: data.msg, sender: data.userId, chinese: '', isShow: false,
+            isTrans: true, sex: data.sex, userName: data.userName, isPhoto: false, imgData: ''
+        };
+        socket.emit("smessage", {
+            content: data.msg, userId: data.userId, groupId: groupId,
+            sex: data.sex, userName: data.userName, imgData:''
+        })
         setMlist(mlist.concat(m)); // trigger state change
     }
 
@@ -134,7 +149,31 @@ const Chat: React.FC<Group> = ({ groupId }) => {
         }
     }
 
+    const selectImg = async () => {
+        Camera.getPhoto({
+            quality: 100,
+            allowEditing: false,
+            resultType: CameraResultType.DataUrl,
+        })
+            .then((image) => {
+                if (c) {
+                    socket.emit("smessage", {
+                        content: '', userId: c.u.userId, groupId: groupId,
+                        sex: c.u.sex, userName: c.u.userName, imgData: image.dataUrl
+                    })
+                    setMlist(mlist.concat({
+                        sender: c.u.userId, userName: c.u.userName,
+                        sex: c.u.sex, imgData: image.dataUrl, isPhoto: true
+                    }))
+                }
+            })
+            .catch((callback) => {
+                // do nothing
+            })
+    }
+
     const addPhoto = () => {
+        selectImg();
     }
 
 
@@ -159,35 +198,41 @@ const Chat: React.FC<Group> = ({ groupId }) => {
                                         <IonItem className='remove_inner_bottom'>
                                             <IonAvatar slot='start'>
                                                 <img src={m.sex == 'male' ? '/assets/male1.png' : '/assets/female1.png'} />
-                                                <small className='left22'>{m.userName}</small>
+                                                <small>{m.userName}</small>
                                             </IonAvatar>
-                                            <div slot="start" className='bubble primary'>
-                                                <p>
-                                                    {m.content}
-                                                </p>
-                                                <IonBadge color="secondary" slot='fixed' onClick={() => translate(m, index)} >{m.isTrans ? "Translate" : "Hide"}</IonBadge>
-                                            </div>
+                                            {m.isPhoto ? (<div slot="start" className='bubble primary'>
+                                                <IonImg src={m.imgData} />
+                                            </div>)
+                                                : (<div slot="start" className='bubble primary'>
+                                                    <p>
+                                                        {m.content}
+                                                    </p>
+                                                    <IonBadge color="secondary" slot='fixed' onClick={() => translate(m, index)} >{m.isTrans ? "Translate" : "Hide"}</IonBadge>
+                                                </div>)
+                                            }
                                         </IonItem>
-                                        <Tbox val={m.chinese} visible={m.isShow}></Tbox>
+                                        <Tbox solt='start' val={m.chinese} visible={m.isShow}></Tbox>
                                     </IonCol>
                                 </IonRow>) :
                                 (<IonRow key={index}>
                                     <IonCol>
                                         <IonItem className='remove_inner_bottom'>
-
-                                            <div slot="end" className='bubble success slotted-fix'>
-
-                                                <p>
-                                                    {m.content}
-                                                </p>
-                                                <IonBadge color="secondary" slot='fixed' onClick={() => translate(m, index)}>{m.isTrans ? "Translate" : "Hide"}</IonBadge>
-                                            </div>
-                                            <IonAvatar slot='end' className="mr-fix">
+                                            {m.isPhoto ? (<div slot="end" className='bubble success slotted-fix'>
+                                                <IonImg src={m.imgData} />
+                                            </div>)
+                                                : (<div slot="end" className='bubble success slotted-fix'>
+                                                    <p>
+                                                        {m.content}
+                                                    </p>
+                                                    <IonBadge color="secondary" slot='fixed' onClick={() => translate(m, index)}>{m.isTrans ? "Translate" : "Hide"}</IonBadge>
+                                                </div>)
+                                            }
+                                            <IonAvatar slot='end'>
                                                 <img src={c?.u.sex == 'male' ? '/assets/male1.png' : '/assets/female1.png'} />
-                                                <small className='right22'>{m.userName}</small>
+                                                <small>{m.userName}</small>
                                             </IonAvatar>
                                         </IonItem>
-                                        <Tbox val={m.chinese} visible={m.isShow}></Tbox>
+                                        <Tbox solt='end' val={m.chinese} visible={m.isShow}></Tbox>
                                     </IonCol>
                                 </IonRow>)
                         })}
@@ -197,7 +242,7 @@ const Chat: React.FC<Group> = ({ groupId }) => {
                     <IonToolbar>
                         <div className='talk'>
                             <div className='talk-content'>
-                                <IonInput value={text} placeholder="type something..." onIonChange={e => setText(e.detail.value!)}></IonInput>
+                                <IonInput id='msg-box' value={text} placeholder="type something..." onIonChange={e => setText(e.detail.value!)}></IonInput>
                             </div>
                             <div className='talk-btn'>
                                 <IonButton color="primary" onClick={postMessage}>

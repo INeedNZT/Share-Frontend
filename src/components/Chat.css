@@ -79,10 +79,6 @@
     margin-inline-start: 12px !important;
 }
 
-#chat .mr-fix {
-    margin-right: 0;
-}
-
 #chat .bubble p {
     margin-top: 10px;
     margin-bottom: 10px;
@@ -119,15 +115,15 @@
     height: 2.4em;
 }
 
+
+#chat ion-img::part(image) {
+    border-radius: 5px !important;
+}
+
 #chat small {
-    position: absolute;
-    bottom: 0;
+    display: flex;
 }
 
-#chat .left22 {
-    left: 22px;
-}
-
-#chat .right22 {
-    right: 22px;
+#msg-box input::placeholder {
+    font-style: italic;
 }

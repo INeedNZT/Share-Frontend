@@ -34,9 +34,10 @@ import RegisterPage from './pages/Register';
 import GroupPage from './pages/Group';
 import { C, User } from './type'
 import GroupListPage from './pages/GroupList';
+import ProfilePage from './pages/Profile';
 
 
-let user: User = { userId: '', userName: '', password: '', sex: '' };
+let user: User = { userId: '', userName: '', password: '', sex: '', age:NaN };
 
 const socket = io("ws://127.0.0.1:5000");
 const t_socket = io("ws://127.0.0.1:7000");
@@ -59,8 +60,9 @@ const App: React.FC = () => {
           <Route exact path="/" component={GroupListPage} />
           <Route exact path="/login" component={LoginPage} />
           <Route exact path="/register" component={RegisterPage} />
-          <Route exact path="/grouplist" render={props => <GroupListPage />} />
+          <Route exact path="/grouplist" render={props => <GroupListPage/>} />
           <Route path="/group/:id" component={GroupPage} />
+          <Route path="/profile/:id" component={ProfilePage} />
         </IonRouterOutlet>
       </IonReactRouter>
     </UserContext.Provider>

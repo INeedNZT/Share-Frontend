@@ -38,7 +38,7 @@ const LoginPage: React.FC = () => {
         socket.emit("login", { userName: userName, password: password }, (response: any) => {
             console.log("Successfully log in,", c);
             if (response.result == "success") {
-                c?.setU({ userName: userName, password: password, userId: response.userId, sex: response.sex });
+                c?.setU({ userName: userName, password: password, userId: response.userId, sex: response.sex, age: response.age });
                 history.push("/grouplist");
             } else {
                 present({
@@ -57,6 +57,7 @@ const LoginPage: React.FC = () => {
             header: 'Quit Share?',
             message: 'Do you want to quit this app?',
             buttons: [
+                // only for Android
                 { text: 'Yes', handler: () => { App.exitApp(); } },
                 "No"
             ]

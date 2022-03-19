@@ -237,7 +237,3 @@ http://ionicframework.com/docs/theming/ */
   }
 }
 
-ion-title {
-  --padding-bottom: 8px;
-  --min-height: 60px;
-}

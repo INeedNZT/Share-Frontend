@@ -42,19 +42,19 @@ const RegisterPage: React.FC = () => {
     });
 
     const SignUpEvent = (e: any) => {
-        socket.emit("register", { userName: userName, password: password, age: age, sex:selected }, (response: any) => {
+        socket.emit("register", { userName: userName, password: password, age: age, sex: selected }, (response: any) => {
             console.log("Successfully sign up,", c);
             if (response.result == "success") {
-                c?.setU({ userName: userName, password: password, userId: response.userId, sex:selected });
+                c?.setU({ userName: userName, password: password, userId: response.userId, sex: selected });
                 history.push("/grouplist");
             } else {
                 present({
                     header: 'Register Failed',
                     message: 'Something wrong with sign up...',
                     buttons: [
-                      'Try again'
+                        'Try again'
                     ]
-                  })
+                })
             }
         })
     }
@@ -64,6 +64,7 @@ const RegisterPage: React.FC = () => {
             header: 'Quit Share?',
             message: 'Do you want to quit this app?',
             buttons: [
+                // only for Android
                 { text: 'Yes', handler: () => { App.exitApp(); } },
                 "No"
             ]

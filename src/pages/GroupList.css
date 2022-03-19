@@ -1,8 +1,29 @@
-#grouplist .pad{
+#grouplist .pad {
     padding: 0.6em 0;
     margin-bottom: 1em;
 }
 
-#grouplist a{
+#grouplist a {
     text-decoration: none;
+}
+
+#grouplist ion-title {
+    text-align: left;
+}
+
+#grouplist ion-item {
+    --min-height: 60px;
+}
+
+.menu-icon {
+    padding-left: 0.5em;
+}
+
+ion-menu a {
+    color: white;
+    text-decoration: none;
+}
+
+#grouplist .title {
+    font-size: 1.2em;
 }
