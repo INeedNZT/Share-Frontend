@@ -46,6 +46,7 @@ const Chat: React.FC<Group> = ({ groupId }) => {
     console.log("start code of Chat Page")
     console.log("get user context, ", c);
 
+    // data type of `message` object
     type Msg = {
         content?: string
         sender: string // user id,
@@ -61,7 +62,7 @@ const Chat: React.FC<Group> = ({ groupId }) => {
     const [text, setText] = useState<string>("");
     const [mlist, setMlist] = useState<Array<Msg>>([]);
 
-
+    // translate event, translate from English to Chinese
     const translate = (m: Msg, i: number) => {
         if (!mlist[i].isTrans) {
             mlist[i].isTrans = !(mlist[i].isTrans);
@@ -81,6 +82,7 @@ const Chat: React.FC<Group> = ({ groupId }) => {
 
     }
 
+    // add listener to receive message
     const regMsg = () => {
         socket.removeAllListeners("rmessage");
         socket.on("rmessage", (d) => {
@@ -114,6 +116,7 @@ const Chat: React.FC<Group> = ({ groupId }) => {
         }
     })
 
+    // when leave the page, notify the backend
     useIonViewWillLeave(() => {
         if (c) {
             socket.emit("quitRoom", { userId: c.u.userId, groupId: groupId })
@@ -139,6 +142,7 @@ const Chat: React.FC<Group> = ({ groupId }) => {
         setMlist(mlist.concat(m)); // trigger state change
     }
 
+    // post message to the backend
     const postMessage = () => {
         if (c) {
             console.log("get userId! " + c.u.userId);
@@ -149,6 +153,7 @@ const Chat: React.FC<Group> = ({ groupId }) => {
         }
     }
 
+    // select image and send to backend service
     const selectImg = async () => {
         Camera.getPhoto({
             quality: 100,

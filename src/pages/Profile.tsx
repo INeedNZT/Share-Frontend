@@ -48,12 +48,14 @@ const ProfilePage: React.FC<UserDetailPageProps> = ({ match }) => {
     const [present] = useIonAlert();
     const history = useHistory();
 
+    // translate the number to undefined, so the UI will display normally
     const toNum = (str: any) => {
         const num = parseInt(str!, 10)
         // check whether is NaN, if is NaN return undefined to make sure display correctly
         return isNaN(num) ? undefined : num;
     }
 
+    // when enter the page, set up all the data
     useIonViewWillEnter(() => {
         console.log("enter Profile View!!!!")
         console.log(c?.u)
@@ -62,6 +64,7 @@ const ProfilePage: React.FC<UserDetailPageProps> = ({ match }) => {
         setAge(c!.u.age);
     });
 
+    // update user info, request to the backend service
     const ConfirmEvent = () => {
         socket.emit("updateUser", { userName: userName, password: password, age: age, sex: selected, userId:c?.u.userId }, (response: any) => {
             console.log("Successfully update user,", c);
@@ -86,6 +89,7 @@ const ProfilePage: React.FC<UserDetailPageProps> = ({ match }) => {
         })
     }
 
+    // cancel click event, set all data back to it used to be
     const CancelEvent = () => {
         setPassword(c!.u.password)
         setSelected(c!.u.sex);

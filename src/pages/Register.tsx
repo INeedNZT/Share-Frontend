@@ -41,6 +41,7 @@ const RegisterPage: React.FC = () => {
 
     });
 
+    // sign up event, request register to the backend service
     const SignUpEvent = (e: any) => {
         socket.emit("register", { userName: userName, password: password, age: age, sex: selected }, (response: any) => {
             console.log("Successfully sign up,", c);
@@ -59,6 +60,7 @@ const RegisterPage: React.FC = () => {
         })
     }
 
+    
     const QuitEvent = (e: any) => {
         present({
             header: 'Quit Share?',

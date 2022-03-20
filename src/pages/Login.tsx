@@ -33,7 +33,7 @@ const LoginPage: React.FC = () => {
     const history = useHistory();
     const [present] = useIonAlert();
 
-
+    // login event request from the backend
     const loginEvent = (e: any) => {
         socket.emit("login", { userName: userName, password: password }, (response: any) => {
             console.log("Successfully log in,", c);
@@ -52,6 +52,7 @@ const LoginPage: React.FC = () => {
         })
     }
 
+    // quit click event
     const QuitEvent = (e:any) =>{
         present({
             header: 'Quit Share?',
